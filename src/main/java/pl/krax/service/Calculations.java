@@ -8,8 +8,8 @@ import java.util.List;
 
 public class Calculations {
 
-    public static final double MILEAGE_RATE = 0.3;
-    public static final double DAILY_ALLOWANCE = 15.0;
+    public static double MILEAGE_RATE = 0.3;
+    public static double DAILY_ALLOWANCE = 15.0;
 
     public static BigDecimal calculateTotalCost(List<LocalDate> selectedDays, int carMileage, List<Receipt> receipts) {
         BigDecimal dailyAllowanceRate = BigDecimal.valueOf(DAILY_ALLOWANCE);
