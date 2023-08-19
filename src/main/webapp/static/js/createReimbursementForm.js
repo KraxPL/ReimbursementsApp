@@ -100,15 +100,34 @@ function createReimbursementForm() {
 
     formContainer.appendChild(form);
 
+    let receiptIndex = 0;
+
     function addNewReceipt() {
-        const selectedReceipt = receiptsSelect.value;
+        const selectedReceipt = document.querySelector('select[name="receipts"]').value;
         const receiptAmount = prompt(`Enter the amount for ${selectedReceipt}:`);
+
         if (receiptAmount !== null && receiptAmount.trim() !== '') {
+            const receiptContainer = document.getElementById('receipt-container');
             const receiptEntry = document.createElement('div');
             receiptEntry.textContent = `${selectedReceipt}: $${parseFloat(receiptAmount).toFixed(2)}`;
             receiptContainer.appendChild(receiptEntry);
+
+            const hiddenNameInput = document.createElement('input');
+            hiddenNameInput.type = 'hidden';
+            hiddenNameInput.name = `receipts[${receiptIndex}].name`;
+            hiddenNameInput.value = selectedReceipt;
+            receiptContainer.appendChild(hiddenNameInput);
+
+            const hiddenPriceInput = document.createElement('input');
+            hiddenPriceInput.type = 'hidden';
+            hiddenPriceInput.name = `receipts[${receiptIndex}].price`;
+            hiddenPriceInput.value = parseFloat(receiptAmount).toFixed(2);
+            receiptContainer.appendChild(hiddenPriceInput);
+
+            receiptIndex++;
         }
     }
+
     function updateSelectedDays() {
         selectedDaysContainerWrapper.innerHTML = '';
         const startDate = new Date(dateRangeStartInput.value);
@@ -134,7 +153,60 @@ function createReimbursementForm() {
     updateSelectedDays();
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    const calculateBtn = document.querySelector('button[type="button"][value="Calculate Reimbursement"]');
+    calculateBtn.addEventListener('click', calculateReimbursement);
+
+    const carUsageCheckbox = document.getElementById('carUsage');
+    const distanceInput = document.querySelector('input[name="distance"]');
+    carUsageCheckbox.addEventListener('change', function () {
+        distanceInput.disabled = !this.checked;
+    });
+
+    const addReceiptButton = document.querySelector('button[type="button"][value="Add New Receipt"]');
+    addReceiptButton.addEventListener('click', addNewReceipt);
+});
+
 function calculateReimbursement() {
     const totalReimbursementField = document.getElementById('total-reimbursement');
-    totalReimbursementField.textContent = 'Total Reimbursement: $123.45';
+    const formData = new FormData(document.getElementById('reimbursement-form'));
+    const formDataJson = {};
+
+    formDataJson.selectedDays = Array.from(formData.getAll('selectedDays'));
+    formDataJson.carUsage = formData.get('carUsage') === 'on';
+    formDataJson.distance = parseFloat(formData.get('distance')) || 0;
+
+    const receipts = [];
+
+    let receiptIndex = 0;
+    while (true) {
+        const receiptName = formData.get(`receipts[${receiptIndex}].name`);
+        const receiptPrice = parseFloat(formData.get(`receipts[${receiptIndex}].price`));
+
+        if (receiptName === null || isNaN(receiptPrice)) {
+            break;
+        }
+
+        receipts.push({ name: receiptName, price: receiptPrice });
+        receiptIndex++;
+    }
+
+    formDataJson.receipts = receipts;
+
+    console.log(formDataJson);
+
+    fetch('http://localhost:8080/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formDataJson)
+    })
+        .then(response => response.json())
+        .then(data => {
+            totalReimbursementField.textContent = `Total Reimbursement: $${data.totalCost.toFixed(2)}`;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
