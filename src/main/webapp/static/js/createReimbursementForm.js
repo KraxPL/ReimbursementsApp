@@ -49,13 +49,23 @@ function createReimbursementForm() {
     receiptsLabel.textContent = 'Receipts:';
     const receiptsSelect = document.createElement('select');
     receiptsSelect.name = 'receipts';
-    const receiptOptions = ['Taxi', 'Hotel', 'Plane Ticket', 'Train'];
-    for (const optionText of receiptOptions) {
-        const option = document.createElement('option');
-        option.value = optionText;
-        option.textContent = optionText;
-        receiptsSelect.appendChild(option);
-    }
+    const receiptOptions = [];
+
+    fetch('/receipts')
+        .then(response => response.json())
+        .then(data => {
+            receiptOptions.push(...data);
+
+            for (const optionText of receiptOptions) {
+                const option = document.createElement('option');
+                option.value = optionText;
+                option.textContent = optionText;
+                receiptsSelect.appendChild(option);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 
     const addReceiptButton = document.createElement('button');
     addReceiptButton.type = 'button';

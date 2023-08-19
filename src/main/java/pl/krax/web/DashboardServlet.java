@@ -18,6 +18,7 @@ public class DashboardServlet extends HttpServlet {
 
         request.setAttribute("currentMileageRate", Calculations.MILEAGE_RATE);
         request.setAttribute("currentDailyAllowance", Calculations.DAILY_ALLOWANCE);
+        request.setAttribute("receiptsList", ReceiptsListServlet.receiptsList);
 
         request.getRequestDispatcher("/WEB-INF/views/dashboard.jsp").forward(request, response);
     }
