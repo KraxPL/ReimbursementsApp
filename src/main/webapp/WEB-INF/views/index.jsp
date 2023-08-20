@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,5 +18,5 @@
 </div>
 <div id="form-container"></div>
 </body>
-<script src="/static/js/createReimbursementForm.js"></script>
+<script src="${pageContext.request.contextPath}/static/js/createReimbursementForm.js"></script>
 </html>
